@@ -7,31 +7,34 @@ import time
 from behave import given, when, then
 
 
-@given(u'that we have gone to {site}')
-def testFunc(context, site):
-    print(format(site))
-    context.site = site
-    print(context.site)
+@given(u'I launch the Chrome Browser')
+def step_impl(context):
+    context.driver = webdriver.Chrome()
 
 
-print("hello")
+@when(u'I open Baseball Reference Website')
+def step_impl(context):
+    context.driver.get("https://www.baseball-reference.com/")
+    time.sleep(1)
 
 
-#
-# driver = webdriver.Chrome()
-#
-# driver.get("https://www.baseball-reference.com/")
-# driver.implicitly_wait(30)
-# my_element = driver.find_element(By.NAME, "search")
-#
-# my_element.send_keys("Aaron Judge")
-# my_element.send_keys(Keys.RETURN)
+@when(u'we search "{name}" in search bar')
+def step_impl(context, name):
+    my_element = context.driver.find_element(By.NAME, "search")
+    my_element.send_keys(name)
+    my_element.send_keys(Keys.RETURN)
+    time.sleep(1)
 
-# @given('that we have gone to {site}')
-# def step_impl(context, site):
-#     context.site = site
-#     context.browser = webdriver.Chrome()
-#     if not site.startswith("http"):
-#         site = "https://" + site
-#     context.browser.get(site)
-#     time.sleep(5)
+
+@then(u'{name} is in title tag of website')
+def step_impl(context, name):
+    webtitle = context.driver.find_elements(By.TAG_NAME, "span")
+    playerFound = False
+
+    for e in webtitle:
+        if str(name) == e.text:
+            playerFound = True
+
+    assert playerFound
+    context.driver.close()
+    time.sleep(2)
